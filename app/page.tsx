@@ -1,8 +1,31 @@
+"use client";
+
 import { FiSearch } from "react-icons/fi";
-import { cars } from "./data/cars";
+import { getCars } from "./services/api";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
+type Car = {
+  id: number;
+  title: string;
+  brand: string;
+  thumbnail: string;
+  price: number;
+  category: string;
+};
 
 export default function HomePage() {
+  const [carsList, setCarsList] = useState<Car[]>([]);
+
+  useEffect(() => {
+    async function loadCars() {
+      const data = await getCars();
+      console.log(data);
+      setCarsList(data);
+    }
+    loadCars();
+  }, []);
+
   return (
     <main className="page">
       <section className="hero">
@@ -23,18 +46,18 @@ export default function HomePage() {
       </section>
       <section className="catalog">
         <div className="grid">
-          {cars.map((car) => (
+          {carsList.map((car) => (
             <div className="card" key={car.id}>
-              <div className="image"></div>
+              <div className="image">
+                <img src={car.thumbnail} alt={car.title} />
+              </div>
 
               <div className="content">
                 <h3>
-                  {car.brand} {car.model}
+                  {car.brand} {car.title}
                 </h3>
 
-                <p>
-                  {car.body} {car.year} {car.transmission}
-                </p>
+                <p>{car.category}</p>
                 <Link href={`/cars/${car.id}`}>
                   <button>View Details</button>
                 </Link>

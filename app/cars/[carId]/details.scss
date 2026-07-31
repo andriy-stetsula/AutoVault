@@ -14,7 +14,27 @@
   gap: 50px;
 }
 
-.image {
+.back {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #9ca3af;
+    font-size: 18px;
+    text-decoration: none;
+    transition: 0.3s;
+  }
+
+  a:hover {
+    color: #3b82f6;
+    transform: translateX(-3px);
+  }
+}
+
+.details-image {
   height: 500px;
   background: #4b4b56;
   border-radius: 20px;

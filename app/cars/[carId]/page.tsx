@@ -1,14 +1,36 @@
-import { cars } from "../../data/cars";
+"use client";
+
+import { getCar } from "@/app/services/api";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import "./details.scss";
+import Link from "next/link";
 
-export default async function CarDetails({
-  params,
-}: {
-  params: Promise<{ carId: string }>;
-}) {
-  const { carId } = await params;
+type Car = {
+  id: number;
+  title: string;
+  brand: string;
+  thumbnail: string;
+  description: string;
+  price: number;
+  category: string;
+  rating: number;
+  stock: number;
+};
 
-  const car = cars.find((item) => item.id === Number(carId));
+export default function CarDetails({}: { params: { carId: string } }) {
+  const { carId } = useParams<{ carId: string }>();
+
+  const [car, setCar] = useState<Car | null>(null);
+
+  useEffect(() => {
+    async function loadCar() {
+      const data = await getCar(carId);
+      setCar(data);
+    }
+
+    loadCar();
+  }, [carId]);
 
   if (!car) {
     return <h1>Car not found</h1>;
@@ -16,40 +38,49 @@ export default async function CarDetails({
 
   return (
     <main className="details">
+      <div className="back">
+        <Link href="/">‹ Back to catalog</Link>
+      </div>
       <div className="container">
-        <div className="image"></div>
-
+        <div className="details-image">
+          <img src={car.thumbnail} alt={car.title} />
+        </div>
         <div className="info">
           <h1>
-            {car.brand} {car.model}
+            {car.brand} {car.title}
           </h1>
 
-          <p className="year">{car.year}</p>
+          <p className="year">{car.price}</p>
 
           <div className="specs">
             <div className="spec">
-              <span>Body</span>
-              <strong>{car.body}</strong>
+              <span>Brand</span>
+              <strong>{car.brand}</strong>
             </div>
 
             <div className="spec">
-              <span>Engine</span>
-              <strong>{car.engine}</strong>
+              <span>Model</span>
+              <strong>{car.title}</strong>
             </div>
 
             <div className="spec">
-              <span>Fuel</span>
-              <strong>{car.fuel}</strong>
+              <span>Category</span>
+              <strong>{car.category}</strong>
             </div>
 
             <div className="spec">
-              <span>Transmission</span>
-              <strong>{car.transmission}</strong>
+              <span>Price</span>
+              <strong>${car.price}</strong>
             </div>
 
             <div className="spec">
-              <span>Drive</span>
-              <strong>{car.drive}</strong>
+              <span>Rating</span>
+              <strong>{car.rating} ⭐</strong>
+            </div>
+
+            <div className="spec">
+              <span>In Stock</span>
+              <strong>{car.stock}</strong>
             </div>
           </div>
 
