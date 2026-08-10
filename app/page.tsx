@@ -16,6 +16,28 @@ type Car = {
 
 export default function HomePage() {
   const [carsList, setCarsList] = useState<Car[]>([]);
+  const [search, setSearch] = useState("");
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+
+    if (savedTheme === "dark") {
+      setDarkMode(true);
+    }
+  }, []);
+
+  function toggleThem() {
+    const newTheme = !darkMode;
+
+    setDarkMode(newTheme);
+
+    localStorage.setItem("theme", newTheme ? "dark" : "light");
+  }
+
+  const filteredCars = carsList.filter((car) =>
+    car.title.toLowerCase().includes(search.toLowerCase()),
+  );
 
   useEffect(() => {
     async function loadCars() {
@@ -27,7 +49,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <main className="page">
+    <main className={`page ${darkMode ? "dark" : ""}`}>
       <section className="hero">
         <span className="logo">AutoVault</span>
 
@@ -41,12 +63,19 @@ export default function HomePage() {
         <div className="search">
           <FiSearch className="icon" />
 
-          <input placeholder="Search by model..." />
+          <input
+            placeholder="Search by model..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
         </div>
       </section>
+      <button className="theme-button" onClick={toggleThem}>
+        {darkMode ? "☀️ Light" : "🌙 Dark"}
+      </button>
       <section className="catalog">
         <div className="grid">
-          {carsList.map((car) => (
+          {filteredCars.map((car) => (
             <div className="card" key={car.id}>
               <div className="image">
                 <img src={car.thumbnail} alt={car.title} />
