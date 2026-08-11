@@ -17,15 +17,22 @@ type Car = {
 export default function HomePage() {
   const [carsList, setCarsList] = useState<Car[]>([]);
   const [search, setSearch] = useState("");
-  const [darkMode, setDarkMode] = useState(false);
+  const [favorites, setFavorites] = useState<number[]>(() => {
+    if (typeof window === "undefined") return [];
+    const savedFavorites = localStorage.getItem("favorites");
+    return savedFavorites ? JSON.parse(savedFavorites) : [];
+  });
+  const [favoritesLoaded, setFavoritesLoaded] = useState(false);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("theme") === "dark";
+  });
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-
-    if (savedTheme === "dark") {
-      setDarkMode(true);
-    }
-  }, []);
+  function toggleFavorite(id: number) {
+    setFavorites((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
+  }
 
   function toggleThem() {
     const newTheme = !darkMode;
@@ -38,6 +45,21 @@ export default function HomePage() {
   const filteredCars = carsList.filter((car) =>
     car.title.toLowerCase().includes(search.toLowerCase()),
   );
+
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem("favorites");
+
+    if (savedFavorites) {
+      setFavorites(JSON.parse(savedFavorites));
+    }
+
+    setFavoritesLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (!favoritesLoaded) return;
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+  }, [favorites, favoritesLoaded]);
 
   useEffect(() => {
     async function loadCars() {
@@ -70,13 +92,22 @@ export default function HomePage() {
           />
         </div>
       </section>
-      <button className="theme-button" onClick={toggleThem}>
-        {darkMode ? "☀️ Light" : "🌙 Dark"}
-      </button>
+      <div className="header-actions">
+        <button className="theme-button" onClick={toggleThem}>
+          {darkMode ? "☀️ Light" : "🌙 Dark"}
+        </button>
+        <Link href="/favorites" className="favorites-button">
+          Favorites
+          <span className="favorites-count">{favorites.length}</span>
+        </Link>
+      </div>
       <section className="catalog">
         <div className="grid">
           {filteredCars.map((car) => (
             <div className="card" key={car.id}>
+              <button onClick={() => toggleFavorite(car.id)}>
+                {favorites.includes(car.id) ? "♥" : "♡"}
+              </button>
               <div className="image">
                 <img src={car.thumbnail} alt={car.title} />
               </div>
