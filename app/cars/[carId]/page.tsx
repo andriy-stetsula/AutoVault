@@ -7,6 +7,7 @@ import "./details.scss";
 import Link from "next/link";
 
 type Reviews = {
+  id: string;
   rating: number;
   comment: string;
   reviewerName: string;
@@ -33,6 +34,9 @@ export default function CarDetails({}: { params: { carId: string } }) {
   const [reviews, setReviews] = useState<Reviews[]>([]);
   const [name, setName] = useState("");
   const [rating, setRating] = useState(5);
+  const [editingReview, setEditingReview] = useState<string | null>(null);
+  const [editComment, setEditComment] = useState("");
+
   const [comment, setComment] = useState("");
   const [car, setCar] = useState<Car | null>(null);
   const [darkMode] = useState(() => {
@@ -55,12 +59,52 @@ export default function CarDetails({}: { params: { carId: string } }) {
     loadCar();
   }, [carId]);
 
+  function deleteReview(reviewId: string) {
+    const updatedReviews = reviews.filter((review) => review.id !== reviewId);
+
+    setReviews(updatedReviews);
+
+    localStorage.setItem(`reviews_${carId}`, JSON.stringify(updatedReviews));
+  }
+
+  function startEdit(review: Reviews) {
+    setEditingReview(review.id);
+    setEditComment(review.comment);
+  }
+
+  function saveEdit(reviewId: string) {
+    if (!editComment.trim()) return;
+
+    const updatedReviews = reviews.map((review) =>
+      review.id === reviewId ? { ...review, comment: editComment } : review,
+    );
+
+    setReviews(updatedReviews);
+
+    localStorage.setItem(`reviews_${carId}`, JSON.stringify(updatedReviews));
+
+    setEditingReview(null);
+    setEditComment("");
+  }
+
+  const [userId] = useState(() => {
+    let id = localStorage.getItem("userId");
+
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem("userId", id);
+    }
+
+    return id;
+  });
+
   function addReview() {
     if (!name.trim() || !comment.trim()) return;
 
     const newReview = {
+      id: crypto.randomUUID(),
       reviewerName: name,
-      reviewerEmail: Date.now().toString(),
+      reviewerEmail: userId,
       rating,
       comment,
     };
@@ -135,13 +179,42 @@ export default function CarDetails({}: { params: { carId: string } }) {
               <p>No reviews yet</p>
             ) : (
               reviews.map((review) => (
-                <div className="review" key={review.reviewerEmail}>
+                <div className="review" key={review.id}>
                   <div className="review-header">
                     <strong>{review.reviewerName}</strong>
                     <span>{"⭐".repeat(review.rating)}</span>
                   </div>
 
-                  <p>{review.comment}</p>
+                  {editingReview === review.id ? (
+                    <div className="edit-review">
+                      <textarea
+                        value={editComment}
+                        onChange={(event) => setEditComment(event.target.value)}
+                      />
+
+                      <button onClick={() => saveEdit(review.id)}>Save</button>
+
+                      <button onClick={() => setEditingReview(null)}>
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <p>{review.comment}</p>
+
+                      {review.reviewerEmail === userId && (
+                        <div className="review-actions">
+                          <button onClick={() => deleteReview(review.id)}>
+                            Delete
+                          </button>
+
+                          <button onClick={() => startEdit(review)}>
+                            Edit
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               ))
             )}
