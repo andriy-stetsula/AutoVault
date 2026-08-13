@@ -24,7 +24,7 @@ AutoVault is a car catalog built with Next.js and TypeScript.
 
 ## Live Demo
 
-[View AutoVault Demo](https://auto-vault-s6k1.vercel.app/)
+[View AutoVault Demo](https://auto-vault-d9zy.vercel.app/)
 
 ## Getting Started
 
