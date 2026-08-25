@@ -108,20 +108,21 @@ export default function HomePage() {
               <button onClick={() => toggleFavorite(car.id)}>
                 {favorites.includes(car.id) ? "♥" : "♡"}
               </button>
-              <div className="image">
-                <img src={car.thumbnail} alt={car.title} />
-              </div>
 
-              <div className="content">
-                <h3>
-                  {car.brand} {car.title}
-                </h3>
+              <Link href={`/cars/${car.id}`}>
+                <div className="image">
+                  <img src={car.thumbnail} alt={car.title} />
+                </div>
 
-                <p>{car.category}</p>
-                <Link href={`/cars/${car.id}`}>
+                <div className="content">
+                  <h3>
+                    {car.brand} {car.title}
+                  </h3>
+
+                  <p>{car.category}</p>
                   <button>View Details</button>
-                </Link>
-              </div>
+                </div>
+              </Link>
             </div>
           ))}
         </div>

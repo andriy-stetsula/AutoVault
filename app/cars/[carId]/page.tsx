@@ -36,6 +36,9 @@ export default function CarDetails({}: { params: { carId: string } }) {
   const [rating, setRating] = useState(5);
   const [editingReview, setEditingReview] = useState<string | null>(null);
   const [editComment, setEditComment] = useState("");
+  const [copiedText, setCopiedText] = useState<string | null>(null);
+  const [isImageOpen, setIsImageOpen] = useState(false);
+  const [currency, setCurrency] = useState<"USD" | "UAN" | "EUR">("USD");
 
   const [comment, setComment] = useState("");
   const [car, setCar] = useState<Car | null>(null);
@@ -46,6 +49,28 @@ export default function CarDetails({}: { params: { carId: string } }) {
 
     return window.localStorage.getItem("theme") === "dark";
   });
+
+  const rates = {
+    USD: 1,
+    UAN: 41.5,
+    EUR: 0.92,
+  };
+
+  const symbols = {
+    USD: "$",
+    UAN: "₴",
+    EUR: "€",
+  };
+
+  function formatPrice(price: number) {
+    const numericPrice = Number(price) || 0;
+    const converted = numericPrice * rates[currency];
+
+    return `${symbols[currency]}${converted.toLocaleString("uk-UA", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  }
 
   useEffect(() => {
     async function loadCar() {
@@ -65,6 +90,13 @@ export default function CarDetails({}: { params: { carId: string } }) {
     setReviews(updatedReviews);
 
     localStorage.setItem(`reviews_${carId}`, JSON.stringify(updatedReviews));
+  }
+
+  function hundleCopy(label: string, value: string | number) {
+    navigator.clipboard.writeText(String(value));
+    setCopiedText(label);
+
+    setTimeout(() => setCopiedText(null), 600);
   }
 
   function startEdit(review: Reviews) {
@@ -126,11 +158,29 @@ export default function CarDetails({}: { params: { carId: string } }) {
 
   return (
     <main className={`details ${darkMode ? "dark" : ""}`}>
+      {copiedText && <div className="toast">Скопійовано: {copiedText}</div>}
+
+      {isImageOpen && (
+        <div
+          className="image-modal-overlay"
+          onClick={() => setIsImageOpen(false)}
+        >
+          <div className="image-modal" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setIsImageOpen(false)}>✕</button>
+            <img src={car.images[0]} alt={car.title} />
+          </div>
+        </div>
+      )}
+
       <div className="back">
         <Link href="/">‹ Back to catalog</Link>
       </div>
       <div className="container">
-        <div className="details-image">
+        <div
+          className="details-image"
+          onClick={() => setIsImageOpen(true)}
+          style={{ cursor: "pointer" }}
+        >
           <img src={car.images[0]} alt={car.title} />
         </div>
         <div className="info">
@@ -138,35 +188,68 @@ export default function CarDetails({}: { params: { carId: string } }) {
             {car.brand} {car.title}
           </h1>
 
-          <p className="price">{car.price}</p>
+          <div className="price-row">
+            <p className="price">{formatPrice(car.price)}</p>
+
+            <div className="currency-switcher">
+              {(["USD", "UAN", "EUR"] as const).map((c) => (
+                <button
+                  key={c}
+                  className={currency === c ? "active" : ""}
+                  onClick={() => setCurrency(c)}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div className="specs">
-            <div className="spec">
+            <div
+              className="spec"
+              onClick={() => hundleCopy("Brand", car.brand)}
+              style={{ cursor: "pointer" }}
+            >
               <span>Brand</span>
               <strong>{car.brand}</strong>
             </div>
 
-            <div className="spec">
+            <div
+              className="spec"
+              onClick={() => hundleCopy("Model", car.title)}
+            >
               <span>Model</span>
               <strong>{car.title}</strong>
             </div>
 
-            <div className="spec">
+            <div
+              className="spec"
+              onClick={() => hundleCopy("Category", car.category)}
+            >
               <span>Category</span>
               <strong>{car.category}</strong>
             </div>
 
-            <div className="spec">
+            <div
+              className="spec"
+              onClick={() => hundleCopy("Price", car.price)}
+            >
               <span>Price</span>
               <strong>${car.price}</strong>
             </div>
 
-            <div className="spec">
+            <div
+              className="spec"
+              onClick={() => hundleCopy("Rating", car.rating)}
+            >
               <span>Rating</span>
               <strong>{car.rating} ⭐</strong>
             </div>
 
-            <div className="spec">
+            <div
+              className="spec"
+              onClick={() => hundleCopy("In Stock", car.stock)}
+            >
               <span>In Stock</span>
               <strong>{car.stock}</strong>
             </div>

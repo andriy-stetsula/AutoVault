@@ -268,3 +268,159 @@
     border-color: #3b82f6;
   }
 }
+
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  background: #2563eb;
+  color: white;
+
+  padding: 12px 20px;
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  z-index: 3000;
+
+  animation: toast-fade 1.5s ease forwards;
+}
+
+@keyframes toast-fade {
+  0% { opacity: 0; transform: translate(-50%, 10px); }
+  10% { opacity: 1; transform: translate(-50%, 0); }
+  85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.image-modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 2000;
+  padding: 20px;
+
+  animation: overlay-fade 0.2s ease;
+}
+
+.image-modal {
+  position: relative;
+
+  background: var(--card, #161b22);
+  border: 1px solid var(--border, #2d333b);
+  border-radius: 20px;
+  padding: 32px;
+
+  width: 100%;
+  max-width: 420px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: modal-pop 0.2s ease;
+
+  img {
+    width: 100%;
+    max-height: 320px;
+    object-fit: contain;
+  }
+
+  button {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #2563eb;
+    color: white;
+    font-size: 16px;
+
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    transition: background 0.2s ease, transform 0.2s ease;
+
+    &:hover {
+      background: #1d4ed8;
+      transform: scale(1.08);
+    }
+  }
+}
+
+@keyframes overlay-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.price-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.currency-switcher {
+  display: flex;
+  gap: 6px;
+
+  button {
+    padding: 6px 15px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-top:-23px;
+
+    background: transparent;
+    color: var(--muted);
+
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+
+    transition: 0.2s ease;
+
+    &:hover {
+      border-color: #3b82f6;
+      color: var(--text);
+    }
+
+    &.active {
+      background: #2563eb;
+      border-color: #2563eb;
+      color: white;
+    }
+  }
+}
